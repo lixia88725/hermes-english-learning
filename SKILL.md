@@ -39,12 +39,10 @@ metadata:
 
 ## TTS Voice
 
-> 投递机制因平台而异。飞书投递机制详见 [`references/feishu-tts-delivery.md`](references/feishu-tts-delivery.md)。
-
 - **必须带语音**：所有英文输出必须带独立语音。使用 `text_to_speech` 工具生成音频，由平台自动投递——**严禁在 `send_message` 中附加 MEDIA 标签**（会导致飞书平台 double-processing，产生重复语音气泡）。
 - **长回复拆分**：英文超过 3 句须拆分（每段 ≤3 句）。每段先发送纯文本消息，再调用 `text_to_speech` 生成对应语音。
 - **语种与配置**：必须使用纯正英文语音（如 `en-US-JennyNeural`），严禁使用中文语音（`zh-CN-*`）。若用户要求切换英音/美音，修改 `~/.hermes/config.yaml` 里的 `tts.edge.voice` 配置项。
-- **语速控制**：首次对话默认 0.9x。用户反馈快慢时微调；对话深入后自然升至 1.0x。
+- **语速控制**：首次对话默认 1.0x。用户反馈快慢时微调；对话深入后自然升至 1.1x。
 
 ## User Level Tracking
 
@@ -68,6 +66,8 @@ metadata:
 4. **手动附加 MEDIA 标签**：在 `send_message` 中附加 `MEDIA:/path` 会导致飞书平台重复投递语音（double-processing bug，详见 references/feishu-tts-delivery.md）。正确做法：只发纯文本消息，用 `text_to_speech` 工具生成语音，平台自动处理投递。
 5. **在文件更新时机上犹豫**：用户新学了词就实时更新词汇表，不要全堆积到退出时再更新。
 6. **把被动曝光当成主动学习**：AI 在对话中自然使用了某个生词，但用户既没有追问含义也没有尝试复用 → 不算"已接触"，不要加入追踪表。这条与 Pitfall #2 互补：#2 是技术性遗漏（忘读文件），#6 是判断性错误（读到文件但误判信号）。
+7. **任务专注时忘记 TTS**：当进入技术性任务（如配置 GitHub、调试代码）时，agent 容易忽略英语陪练身份，只回复文本不带语音。记住：**每条英文回复都必须有 TTS**，无论当前在聊什么话题。用 text_to_speech 工具，不可省略。
+8. **语法纠错不够主动**：用户期望你主动发现并纠正语法错误，而不是等用户问"我有语法错误吗？"才指出来。用户不需要完美——需要的是每次交流都有进步。遇到错误就做 natural recast，不要犹豫"会不会打断对话"。
 7. **TTS 调用后正文留空**：`text_to_speech` 工具只生成音频文件，不会自动将文本发送到聊天。调用 `text_to_speech` 后必须**在最终 response 正文中显式写出对话文本**——写在 `</function_results>` 之前的文字不会成为消息，会被丢弃。模板：先写完整英文回复 → 调用 `text_to_speech`（传入相同文本）→ 在 `</function_results>` 之后再写一遍文本（或确保最终输出不为空）。简言之：**正文必须出现在所有 tool call 的 XML 块之后**。
 
 ## Verification Checklist
