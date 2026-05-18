@@ -1,5 +1,7 @@
 # Hermes English Learning
 
+[中文版本 →](README_zh.md)
+
 An AI-powered English conversation companion skill for [Hermes Agent](https://hermes-agent.nousresearch.com).
 
 ## What it does
